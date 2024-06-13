@@ -1,0 +1,29 @@
+services:
+#  app:
+#    container_name: bdg-service
+#    build:
+#      context: ./backend
+#    stop_signal: SIGKILL
+#    ports:
+#      - "8000:8000"
+#    networks:
+#      - bdgsnet
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=bdgs
+    ports:
+      - "5432:5432"
+#    volumes:
+#      - ./db/:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - bdgsnet
+
+networks:
+  bdgsnet:
+    name: bdgs-net
