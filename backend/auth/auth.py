@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
 
-from .models import TokenData, UserIn, UserOut
+from routes.models import TokenData, UserOut
 from .shared import oauth2_scheme, pwd_context
 from config import AUTH_SECRET_KEY, AUTH_ALGORITHM
 from database.models import User

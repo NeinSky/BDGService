@@ -1,9 +1,11 @@
 from sqlalchemy import select, or_
 from typing import List
+from datetime import  datetime
 
 from .connection import get_session
 from .models import User, subscription as sub
-from auth.models import UserShort
+from routes.models import UserShort
+from config import logger
 
 MSG_SUB_EXIST = "Подписка уже существует."
 MSG_USERS_NOT_EXIST = "Одного или нескольких пользователей не удалось найти."
@@ -67,3 +69,13 @@ async def sub_list(user_id: int) -> List[UserShort]:
         result = r.scalars().all()
         return [UserShort(**user.to_dict())
                 for user in result]
+
+
+async def birthday_alert(user_id: int) -> List[UserShort]:
+    """Возвращает список сотрудников на кого подписан пользователь, и у кого сегодня день рождения"""
+    now = datetime.now()
+    logger.info(now)
+    users = await sub_list(user_id)
+    return [user
+            for user in users
+            if user.birthday.day == now.day and user.birthday.month == now.month]

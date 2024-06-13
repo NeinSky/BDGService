@@ -4,9 +4,9 @@ from fastapi import Depends
 
 from config import ALLOW_USER_REGISTRATION
 from auth.auth import get_current_active_user
-from auth.models import UserOut, UserWithPassword, UserShort
+from .models import UserOut, UserWithPassword, UserShort
 from database.models import User
-from database.ext import subscribe as sub, unsubscribe as unsub, sub_list
+from database.ext import subscribe as sub, unsubscribe as unsub, sub_list, birthday_alert
 
 from .status_codes import get_status_403_forbidden, get_status_400_bad_request, MSG_USER_EXISTS
 router = APIRouter()
@@ -48,6 +48,19 @@ async def get_subscriptions(
     return {'result': 'Вы пока ни на кого не подписаны'}
 
 
+@router.get("/users/alert")
+async def alert(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> List[UserShort] | Dict:
+    """
+    Возвращает список тех, у кого сегодня день рождения и на кого пользователь подписан
+    """
+    users = await birthday_alert(current_user.id)
+    if users:
+        return users
+    return {"result": "Сегодня ни у кого дня рождения нет"}
+
+
 @router.get("/users/subscribe/{idx}")
 async def subscribe(
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -74,3 +87,5 @@ async def unsubscribe(
     if not error:
         return {"result": "Успешно отписан!"}
     get_status_400_bad_request(error)
+
+

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, VARCHAR, Date, Sequence, BOOLEAN, update, delete, select, ForeignKey, Table
+from sqlalchemy import (Column, Integer, VARCHAR, Date, DATETIME, Sequence,
+                        BOOLEAN, update, delete, select, ForeignKey, Table, cast)
 from sqlalchemy.orm import declarative_base
 from typing import List, Dict, Any
 from datetime import datetime
@@ -6,7 +7,7 @@ from datetime import datetime
 from .connection import get_session
 from config import logger, AUTH_CREATE_DEFAULT_ADMIN, AUTH_DEFAULT_ADMIN, AUTH_DEFAULT_ADMIN_PASSWORD
 from auth.shared import pwd_context
-from auth.models import UserOut, UserWithPassword, UserShort
+from routes.models import UserOut, UserWithPassword, UserShort
 
 Base = declarative_base()
 
@@ -29,10 +30,6 @@ class User(Base):
     birthday = Column(Date, nullable=False)
     is_admin = Column(BOOLEAN, default=False)
     disabled = Column(BOOLEAN, default=False)
-
-    # subscription: Mapped[List] = relationship(
-    #     secondary=subscription, back_populates="users"
-    # )
 
     def to_dict(self) -> Dict[str, Any]:
         return {c.name: getattr(self, c.name) for c in
@@ -148,3 +145,29 @@ class User(Base):
                 return UserOut(**user.to_dict())
             else:
                 return None
+
+    @staticmethod
+    async def run_cmd(idx: int, cmd: str) -> UserOut | None:
+        """Бан пользователя"""
+        async with get_session() as session:
+            r = await session.execute(select(User).where(User.id == idx))
+            user = r.scalar()
+            if user:
+                if cmd == 'ban':
+                    q = update(User).where(User.id == idx).values(disabled=True)
+                elif cmd == 'unban':
+                    q = update(User).where(User.id == idx).values(disabled=False)
+                elif cmd == 'promote':
+                    q = update(User).where(User.id == idx).values(is_admin=True)
+                elif cmd == 'demote':
+                    q = update(User).where(User.id == idx).values(is_admin=False)
+                else:
+                    return None
+
+                await session.execute(q)
+                await session.commit()
+
+                r = await session.execute(select(User).where(User.id == idx))
+                user = r.scalar()
+                return UserOut(**user)
+            return None
