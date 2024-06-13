@@ -22,13 +22,17 @@ DB_NAME = os.getenv('DB_NAME')
 AUTH_SECRET_KEY = os.getenv('SECRET_KEY')
 AUTH_ALGORITHM = "HS256"
 AUTH_ACCESS_TOKEN_EXPIRE_MINUTES = 30
-# Администратор сервиса по умолчанию. Создаётся, если таблица администраторов пуста.
+# Администратор сервиса по умолчанию. Создаётся при запуске, если в базе нет ни одного администратора.
 # При первом заходе стоит либо изменить пароль, либо удалить эту запись из базы.
 AUTH_CREATE_DEFAULT_ADMIN = True  # Если не хотите, чтобы администратор по умолчанию создавался, поставьте False
 AUTH_DEFAULT_ADMIN = 'admin'
 AUTH_DEFAULT_ADMIN_PASSWORD = 'admin'
 
 # Настройки приложения
+# Если True, то пользователи могут самостоятельно регистрироваться,
+# в противном случае новых пользователей может добавлять только администратор.
+ALLOW_USER_REGISTRATION = True
+
 LOG_LEVEL = logging.INFO
 logger = logging.getLogger('BDGService')
 logging.basicConfig(level=LOG_LEVEL)

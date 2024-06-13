@@ -4,10 +4,10 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
 
-from .models import TokenData, User, UserInDB
+from .models import TokenData, UserIn, UserOut
 from .shared import oauth2_scheme, pwd_context
 from config import AUTH_SECRET_KEY, AUTH_ALGORITHM
-from database.models import Admin
+from database.models import User
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -18,24 +18,17 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-async def get_user(username: str) -> UserInDB | None:
-    admin = await Admin.get_admin(username)
-    return UserInDB(
-        username=admin.username,
-        email=admin.email,
-        full_name=admin.full_name,
-        disabled=admin.disabled,
-        hashed_password=admin.password
-    )
+async def get_user(username: str) -> User | None:
+    return await User.get_user_by_username(username)
 
 
-async def authenticate_user(username: str, password: str) -> User | bool:
+async def authenticate_user(username: str, password: str) -> UserOut | bool:
     user = await get_user(username)
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user.password):
         return False
-    return user
+    return UserOut(**user.to_dict())
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -49,7 +42,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> UserOut | None:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Не удалось подтвердить учетные данные",
@@ -66,7 +59,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     user = await get_user(username=token_data.username)
     if user is None:
         raise credentials_exception
-    return user
+    return UserOut(**user.to_dict())
 
 
 async def get_current_active_user(
