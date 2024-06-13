@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.pool import NullPool
 
 from contextlib import asynccontextmanager
 from config import DB_DRIVER, DB_USER, DB_PASSWORD, DB_PORT, DB_NAME, DB_HOST, DB_ECHO, logger
@@ -8,6 +9,7 @@ from config import DB_DRIVER, DB_USER, DB_PASSWORD, DB_PORT, DB_NAME, DB_HOST, D
 engine = create_async_engine(
     f'{DB_DRIVER}://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}',
     echo=DB_ECHO,
+    poolclass=NullPool,
 )
 
 

@@ -27,6 +27,7 @@ AUTH_ACCESS_TOKEN_EXPIRE_MINUTES = 30
 AUTH_CREATE_DEFAULT_ADMIN = True  # Если не хотите, чтобы администратор по умолчанию создавался, поставьте False
 AUTH_DEFAULT_ADMIN = 'admin'
 AUTH_DEFAULT_ADMIN_PASSWORD = 'admin'
+AUTH_PASSWORD_MIN_LENGTH = 5
 
 # Настройки приложения
 # Если True, то пользователи могут самостоятельно регистрироваться,

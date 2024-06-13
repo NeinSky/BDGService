@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 MSG_USER_NOT_FOUND = "Пользователь не найден"
 MSG_USER_EXISTS = "Пользователь уже существует"
 MSG_DEFAULT = "Неверный запрос"
+MSG_PASSWORD_TOO_SHORT = "Пароль слишком короткий. Минимальная длина {} символов"
 
 
 def get_status_403_forbidden():

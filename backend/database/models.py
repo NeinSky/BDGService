@@ -1,5 +1,5 @@
-from sqlalchemy import (Column, Integer, VARCHAR, Date, DATETIME, Sequence,
-                        BOOLEAN, update, delete, select, ForeignKey, Table, cast)
+from sqlalchemy import (Column, Integer, VARCHAR, Date, Sequence,
+                        BOOLEAN, update, delete, select, ForeignKey, Table)
 from sqlalchemy.orm import declarative_base
 from typing import List, Dict, Any
 from datetime import datetime
@@ -147,8 +147,17 @@ class User(Base):
                 return None
 
     @staticmethod
+    async def change_password(idx: int, password: str):
+        """Изменение пароля"""
+        async with get_session() as session:
+            password = pwd_context.hash(password)
+            q = update(User).where(User.id == idx).values(password=password)
+            await session.execute()
+            await session.commit()
+
+    @staticmethod
     async def run_cmd(idx: int, cmd: str) -> UserOut | None:
-        """Бан пользователя"""
+        """Выполняет быстрые команды: блокирование, разблокирование, выдача и удаление прав"""
         async with get_session() as session:
             r = await session.execute(select(User).where(User.id == idx))
             user = r.scalar()
@@ -169,5 +178,5 @@ class User(Base):
 
                 r = await session.execute(select(User).where(User.id == idx))
                 user = r.scalar()
-                return UserOut(**user)
+                return UserOut(**user.to_dict())
             return None

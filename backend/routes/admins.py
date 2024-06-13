@@ -39,22 +39,6 @@ async def add_admin(
     get_status_403_forbidden()
 
 
-@router.post("/admins")
-async def add_user(
-    current_user: Annotated[User, Depends(get_current_active_user)],
-    admin: UserWithPassword
-) -> UserOut:
-    """
-    Добавление пользователя
-    """
-    if current_user.is_admin:
-        admin = await User.add_user(admin, is_admin=True)
-        if admin:
-            return admin
-        get_status_400_bad_request(MSG_USER_EXISTS)
-    get_status_403_forbidden()
-
-
 @router.delete("/admins/{idx}")
 async def delete_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -87,7 +71,7 @@ async def edit_user(
     get_status_403_forbidden()
 
 
-@router.get('/admins/ban/{idx}')
+@router.patch('/admins/ban/{idx}')
 async def ban_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     idx: int
@@ -103,7 +87,7 @@ async def ban_user(
     get_status_403_forbidden()
 
 
-@router.get('/admins/unban/{idx}')
+@router.patch('/admins/unban/{idx}')
 async def ban_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     idx: int
@@ -119,7 +103,7 @@ async def ban_user(
     get_status_403_forbidden()
 
 
-@router.get('/admins/promote/{idx}')
+@router.patch('/admins/promote/{idx}')
 async def promote_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     idx: int
@@ -135,7 +119,7 @@ async def promote_user(
     get_status_403_forbidden()
 
 
-@router.get('/admins/promote/{idx}')
+@router.patch('/admins/demote/{idx}')
 async def demote_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     idx: int

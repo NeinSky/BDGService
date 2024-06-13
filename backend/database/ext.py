@@ -1,6 +1,6 @@
 from sqlalchemy import select, or_
 from typing import List
-from datetime import  datetime
+from datetime import datetime
 
 from .connection import get_session
 from .models import User, subscription as sub
