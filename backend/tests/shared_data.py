@@ -29,7 +29,7 @@ def get_new_user(username: str = get_random_string(),
         "username": username,
         "email": get_random_string(20),
         "full_name": get_random_string(20),
-        "birthday": "2024-06-13T22:33:28.499Z",
+        "birthday": "2024-01-01T22:33:28.499Z",
         "password": password
     }
 

@@ -72,10 +72,22 @@ async def sub_list(user_id: int) -> List[UserShort]:
 
 
 async def birthday_alert(user_id: int) -> List[UserShort]:
-    """Возвращает список сотрудников на кого подписан пользователь, и у кого сегодня день рождения"""
+    """
+    Возвращает список сотрудников на кого подписан пользователь, и у кого сегодня день рождения
+    """
     now = datetime.now()
     logger.info(now)
     users = await sub_list(user_id)
     return [user
             for user in users
             if user.birthday.day == now.day and user.birthday.month == now.month]
+
+
+async def delete_subs_by_id(user_id: int) -> None:
+    """
+    Удаляет все записи с данным ключом subscriptions.user_id
+    """
+    async with get_session() as session:
+        q = sub.delete().where(sub.c.user_id == user_id)
+        await session.execute(q)
+        await session.commit()
