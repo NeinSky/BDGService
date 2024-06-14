@@ -63,4 +63,4 @@ def login(username, password):
 
 def remove_user(idx):
     token = get_admin_token()
-    client.delete(f'/admins/{idx}', headers=get_header(token))
+    client.delete(f'/admins/users/{idx}', headers=get_header(token))

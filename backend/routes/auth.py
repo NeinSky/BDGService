@@ -43,10 +43,13 @@ async def register_user(user: UserWithPassword) -> UserOut:
     Регистрация нового пользователя
     """
     if ALLOW_USER_REGISTRATION:
-        new_user = await User.add_user(user)
-        if new_user:
-            return new_user
-        get_status_400_bad_request(MSG_USER_EXISTS)
+        if len(user.password) >= AUTH_PASSWORD_MIN_LENGTH:
+            new_user = await User.add_user(user)
+            if new_user:
+                return new_user
+            get_status_400_bad_request(MSG_USER_EXISTS)
+        else:
+            get_status_400_bad_request(MSG_PASSWORD_TOO_SHORT.format(AUTH_PASSWORD_MIN_LENGTH))
     get_status_403_forbidden()
 
 

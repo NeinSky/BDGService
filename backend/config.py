@@ -10,7 +10,9 @@ else:
 
 # Настройки базы данных
 DB_DRIVER = 'postgresql+asyncpg'
-DB_HOST = '0.0.0.0'  # измените на название контейнера БД, если используется docker compile
+# Измените на название контейнера БД, если используется docker compile ('postgres' по умолчанию)
+DB_HOST = 'postgres'
+# DB_HOST = '0.0.0.0'
 DB_PORT = '5432'
 DB_ECHO = False
 DB_USER = os.getenv('DB_USER')

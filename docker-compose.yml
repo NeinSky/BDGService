@@ -1,13 +1,13 @@
 services:
-#  app:
-#    container_name: bdg-service
-#    build:
-#      context: ./backend
-#    stop_signal: SIGKILL
-#    ports:
-#      - "8000:8000"
-#    networks:
-#      - bdgsnet
+  app:
+    container_name: bdg-service
+    build:
+      context: ./backend
+    stop_signal: SIGKILL
+    ports:
+      - "8000:8000"
+    networks:
+      - bdgsnet
 
   postgres:
     container_name: postgres

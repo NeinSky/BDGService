@@ -5,25 +5,25 @@ def test_unauthorized_access():
     response = client.get("/admins")
     assert response.status_code == 401
 
-    response = client.post("/admins")
+    response = client.post("/admins/users")
     assert response.status_code == 401
 
-    response = client.patch("/admins")
+    response = client.patch("/admins/users")
     assert response.status_code == 401
 
-    response = client.delete("/admins/1")
+    response = client.delete("/admins/users/1")
     assert response.status_code == 401
 
-    response = client.patch("/admins/ban/1")
+    response = client.patch("/admins/users/ban/1")
     assert response.status_code == 401
 
-    response = client.patch("/admins/unban/1")
+    response = client.patch("/admins/users/unban/1")
     assert response.status_code == 401
 
-    response = client.patch("/admins/promote/1")
+    response = client.patch("/admins/users/promote/1")
     assert response.status_code == 401
 
-    response = client.patch("/admins/demote/1")
+    response = client.patch("/admins/users/demote/1")
     assert response.status_code == 401
 
 
@@ -47,44 +47,44 @@ def test_authorized_access():
     assert response.status_code == 200
 
     # Новый пользователь
-    response = client.post('/admins', json=new_user, headers=get_header(token))
+    response = client.post('/admins/users', json=new_user, headers=get_header(token))
     assert response.status_code == 200
 
     # Изменение пользователя с неверным ID
     data = response.json()
     idx = data["id"]
-    response = client.patch('/admins', json=edited_user, headers=get_header(token))
+    response = client.patch('/admins/users', json=edited_user, headers=get_header(token))
     assert response.status_code == 400
 
     # Изменение пользователя с верными данными
     edited_user['id'] = idx
-    response = client.patch('/admins', json=edited_user, headers=get_header(token))
+    response = client.patch('/admins/users', json=edited_user, headers=get_header(token))
     assert response.status_code == 200
 
     # Бан
-    response = client.patch(f"/admins/ban/{idx}", headers=get_header(token))
+    response = client.patch(f"/admins/users/ban/{idx}", headers=get_header(token))
     assert response.status_code == 200
     data = response.json()
     assert data['disabled'] == True
 
     # Анбан
-    response = client.patch(f"/admins/unban/{idx}", headers=get_header(token))
+    response = client.patch(f"/admins/users/unban/{idx}", headers=get_header(token))
     assert response.status_code == 200
     data = response.json()
     assert data['disabled'] == False
 
     # Админ
-    response = client.patch(f"/admins/promote/{idx}", headers=get_header(token))
+    response = client.patch(f"/admins/users/promote/{idx}", headers=get_header(token))
     assert response.status_code == 200
     data = response.json()
     assert data['is_admin'] == True
 
     # Не админ
-    response = client.patch(f"/admins/demote/{idx}", headers=get_header(token))
+    response = client.patch(f"/admins/users/demote/{idx}", headers=get_header(token))
     assert response.status_code == 200
     data = response.json()
     assert data['is_admin'] == False
 
     # Удаление пользователя
-    response = client.delete(f'/admins/{idx}', headers=get_header(token))
+    response = client.delete(f'/admins/users/{idx}', headers=get_header(token))
     assert response.status_code == 200

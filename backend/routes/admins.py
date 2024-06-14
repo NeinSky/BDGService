@@ -3,10 +3,12 @@ from typing import Annotated, List, Dict
 from fastapi import Depends
 
 from .models import UserOut, UserWithPassword
+from config import AUTH_PASSWORD_MIN_LENGTH
 from auth.auth import get_current_active_user
 from database.models import User
 
-from .status_codes import get_status_403_forbidden, get_status_400_bad_request, MSG_USER_EXISTS, MSG_USER_NOT_FOUND
+from .status_codes import (get_status_403_forbidden, get_status_400_bad_request,
+                           MSG_USER_EXISTS, MSG_USER_NOT_FOUND, MSG_PASSWORD_TOO_SHORT)
 
 router = APIRouter()
 
@@ -23,23 +25,26 @@ async def get_admins(
     get_status_403_forbidden()
 
 
-@router.post("/admins")
-async def add_admin(
+@router.post("/admins/users")
+async def add_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
-    admin: UserWithPassword
+    user: UserWithPassword
 ) -> UserOut | Dict:
     """
     Добавление администратора
     """
     if current_user.is_admin:
-        admin = await User.add_user(admin, is_admin=True)
-        if admin:
-            return admin
-        get_status_400_bad_request(MSG_USER_EXISTS)
+        if len(user.password) >= AUTH_PASSWORD_MIN_LENGTH:
+            user = await User.add_user(user)
+            if user:
+                return user
+            get_status_400_bad_request(MSG_USER_EXISTS)
+        else:
+            get_status_400_bad_request(MSG_PASSWORD_TOO_SHORT.format(AUTH_PASSWORD_MIN_LENGTH))
     get_status_403_forbidden()
 
 
-@router.delete("/admins/{idx}")
+@router.delete("/admins/users/{idx}")
 async def delete_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     idx: int
@@ -55,7 +60,7 @@ async def delete_user(
     get_status_403_forbidden()
 
 
-@router.patch('/admins')
+@router.patch('/admins/users')
 async def edit_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     user: UserOut
@@ -71,7 +76,7 @@ async def edit_user(
     get_status_403_forbidden()
 
 
-@router.patch('/admins/ban/{idx}')
+@router.patch('/admins/users/ban/{idx}')
 async def ban_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     idx: int
@@ -87,7 +92,7 @@ async def ban_user(
     get_status_403_forbidden()
 
 
-@router.patch('/admins/unban/{idx}')
+@router.patch('/admins/users/unban/{idx}')
 async def ban_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     idx: int
@@ -103,7 +108,7 @@ async def ban_user(
     get_status_403_forbidden()
 
 
-@router.patch('/admins/promote/{idx}')
+@router.patch('/admins/users/promote/{idx}')
 async def promote_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     idx: int
@@ -119,7 +124,7 @@ async def promote_user(
     get_status_403_forbidden()
 
 
-@router.patch('/admins/demote/{idx}')
+@router.patch('/admins/users/demote/{idx}')
 async def demote_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     idx: int

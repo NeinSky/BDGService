@@ -35,25 +35,25 @@ def test_permissions_normal_user():
         response = client.get("/admins", headers=headers)
         assert response.status_code == 403
 
-        response = client.post("/admins", json=usr, headers=headers)
+        response = client.post("/admins/users", json=usr, headers=headers)
         assert response.status_code == 403
 
-        response = client.patch("/admins", json=edited, headers=headers)
+        response = client.patch("/admins/users/", json=edited, headers=headers)
         assert response.status_code == 403
 
-        response = client.delete("/admins/1", headers=headers)
+        response = client.delete("/admins/users/1", headers=headers)
         assert response.status_code == 403
 
-        response = client.patch("/admins/ban/1", headers=headers)
+        response = client.patch("/admins/users/ban/1", headers=headers)
         assert response.status_code == 403
 
-        response = client.patch("/admins/unban/1", headers=headers)
+        response = client.patch("/admins/users/unban/1", headers=headers)
         assert response.status_code == 403
 
-        response = client.patch("/admins/promote/1", headers=headers)
+        response = client.patch("/admins/users/promote/1", headers=headers)
         assert response.status_code == 403
 
-        response = client.patch("/admins/demote/1", headers=headers)
+        response = client.patch("/admins/users/demote/1", headers=headers)
         assert response.status_code == 403
     finally:
         remove_user(idx)
