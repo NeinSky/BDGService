@@ -1,44 +1,4 @@
-from fastapi.testclient import TestClient
-import random
-import string
-from main import app
-
-client = TestClient(app)
-
-admin = "admin"
-password = "admin"
-
-
-def get_random_string(size=10):
-    return "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
-
-
-username = get_random_string(20)
-
-new_user = {
-    "username": username,
-    "email": get_random_string(20),
-    "full_name": get_random_string(20),
-    "birthday": "2024-06-13T22:33:28.499Z",
-    "password": get_random_string(20)
-}
-
-change_user = {
-    "username": username,
-    "email": get_random_string(20),
-    "full_name": get_random_string(20),
-    "birthday": "1900-01-01",
-    "id": 0,
-    "is_admin": False,
-    "disabled": False,
-}
-
-
-def get_header(token: str):
-    return {
-        'accept': 'application/json',
-        'Authorization': f'Bearer {token}'
-    }
+from .shared_data import client, get_new_user, get_admin_token , change_user, get_random_string, get_header
 
 
 def test_unauthorized_access():
@@ -68,6 +28,11 @@ def test_unauthorized_access():
 
 
 def test_authorized_access():
+    username = get_random_string()
+    password = get_random_string()
+    new_user = get_new_user(username, password)
+    edited_user = change_user(username)
+
     # Авторизация
     response = client.post('/token', data={
         'username': 'admin',
@@ -88,12 +53,12 @@ def test_authorized_access():
     # Изменение пользователя с неверным ID
     data = response.json()
     idx = data["id"]
-    response = client.patch('/admins', json=change_user, headers=get_header(token))
+    response = client.patch('/admins', json=edited_user, headers=get_header(token))
     assert response.status_code == 400
 
     # Изменение пользователя с верными данными
-    change_user['id'] = idx
-    response = client.patch('/admins', json=change_user, headers=get_header(token))
+    edited_user['id'] = idx
+    response = client.patch('/admins', json=edited_user, headers=get_header(token))
     assert response.status_code == 200
 
     # Бан

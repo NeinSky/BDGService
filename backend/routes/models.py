@@ -40,3 +40,7 @@ class UserShort(BaseModel):
 
     def to_dict(self) -> Dict[str, Any]:
         return vars(self)
+
+
+class Password(BaseModel):
+    password: str

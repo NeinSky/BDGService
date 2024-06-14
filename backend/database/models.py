@@ -152,7 +152,7 @@ class User(Base):
         async with get_session() as session:
             password = pwd_context.hash(password)
             q = update(User).where(User.id == idx).values(password=password)
-            await session.execute()
+            await session.execute(q)
             await session.commit()
 
     @staticmethod

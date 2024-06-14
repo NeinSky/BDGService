@@ -8,7 +8,7 @@ from typing import Dict
 from auth.auth import authenticate_user, create_access_token, get_current_active_user
 from config import ALLOW_USER_REGISTRATION, AUTH_PASSWORD_MIN_LENGTH
 from database.models import User
-from .models import Token, UserOut, UserWithPassword
+from .models import Token, UserOut, UserWithPassword, Password
 from .status_codes import get_status_400_bad_request, get_status_403_forbidden, MSG_USER_EXISTS, MSG_PASSWORD_TOO_SHORT
 
 from config import AUTH_ACCESS_TOKEN_EXPIRE_MINUTES
@@ -53,11 +53,12 @@ async def register_user(user: UserWithPassword) -> UserOut:
 @router.patch("/change_password")
 async def change_password(
     current_user: Annotated[User, Depends(get_current_active_user)],
-    password: str
+    password: Password
 ) -> Dict:
     """
     Смена пароля
     """
+    password = password.password
     if len(password) >= AUTH_PASSWORD_MIN_LENGTH:
         await User.change_password(current_user.id, password)
         return {"result": "Пароль изменён"}
